@@ -305,55 +305,57 @@ export default function Home() {
           />
 
           <div className="relative max-w-6xl w-full mx-auto">
-            <div className="glass-card rounded-[var(--radius-shell)] p-6 pt-9 sm:p-8 sm:pt-9 md:p-11 lg:p-14 section-frame overflow-hidden">
-              <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 md:gap-12 lg:gap-14 items-start lg:items-center">
-                <div className="space-y-6 sm:space-y-7 pt-1 md:pt-0">
+            <div className="glass-card rounded-[var(--radius-shell)] p-5 pt-7 sm:p-8 sm:pt-9 md:p-11 lg:p-14 section-frame overflow-hidden">
+              <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-7 sm:gap-9 md:gap-12 lg:gap-14 items-start lg:items-center">
+                <div className="space-y-5 sm:space-y-7 pt-1 md:pt-0">
                   <p
                     className={`inline-flex max-w-full uppercase tracking-[0.11em] sm:tracking-[0.18em] md:tracking-[0.22em] text-[10px] sm:text-xs md:text-sm font-semibold text-emerald-900/80 dark:text-emerald-200/90 transition-all duration-700 leading-tight ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
                   >
                     Estudio Bio-A
                   </p>
                   <h1
-                    className={`headline-gradient text-4xl sm:text-5xl lg:text-7xl leading-[1.02] sm:leading-[0.97] md:leading-[0.92] transition-all duration-1200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+                    className={`headline-gradient text-[2.7rem] sm:text-5xl lg:text-7xl leading-[0.96] sm:leading-[0.97] md:leading-[0.92] transition-all duration-1200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
                   >
                     Parallax botanico com assinatura de luxo.
                   </h1>
                   <p
-                    className={`text-zinc-700 dark:text-zinc-200 text-base md:text-lg max-w-xl leading-relaxed transition-all duration-1200 delay-150 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+                    className={`text-zinc-700 dark:text-zinc-200 text-[15px] sm:text-base md:text-lg max-w-xl leading-relaxed transition-all duration-1200 delay-150 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
                   >
                     Transformamos arquitetura em experiencia sensorial com camadas de movimento, luz
                     e natureza. Um site que nao apenas mostra um portfolio, mas prova dominio
                     tecnico e estatico de animacao parallax.
                   </p>
                   <div
-                    className={`flex flex-wrap gap-3.5 md:gap-4 pt-1 transition-all duration-1200 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+                    className={`flex flex-wrap gap-3 md:gap-4 pt-1 transition-all duration-1200 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
                   >
                     <a
                       href="#curadoria"
-                      className="w-full sm:w-auto text-center px-7 py-3 rounded-full bg-linear-to-r from-emerald-700 to-teal-600 text-white font-semibold shadow-[0_18px_38px_-18px_rgba(12,111,76,.8)] hover:scale-[1.02] transition"
+                      className="w-full sm:w-auto text-center px-6 sm:px-7 py-3 rounded-full bg-linear-to-r from-emerald-700 to-teal-600 text-white font-semibold shadow-[0_18px_38px_-18px_rgba(12,111,76,.8)] hover:scale-[1.02] transition"
                     >
                       Ver Experiencias
                     </a>
                     <a
                       href="#contato"
-                      className="w-full sm:w-auto text-center px-7 py-3 rounded-full border border-emerald-900/25 dark:border-emerald-100/30 text-emerald-900 dark:text-emerald-100 font-semibold hover:bg-white/40 dark:hover:bg-white/10 transition"
+                      className="w-full sm:w-auto text-center px-6 sm:px-7 py-3 rounded-full border border-emerald-900/25 dark:border-emerald-100/30 text-emerald-900 dark:text-emerald-100 font-semibold hover:bg-white/40 dark:hover:bg-white/10 transition"
                     >
                       Agendar Consultoria
                     </a>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-1 gap-4 md:gap-4.5">
+                <div className="grid grid-cols-3 lg:grid-cols-1 gap-2.5 sm:gap-3 md:gap-4.5">
                   {STATS.map((item, i) => (
                     <div
                       key={item.label}
-                      className={`glass-card rounded-[var(--radius-card)] p-4 md:p-5 transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+                      className={`glass-card rounded-[var(--radius-card)] p-3 sm:p-4 md:p-5 text-center lg:text-left transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
                       style={{ transitionDelay: `${250 + i * 120}ms` }}
                     >
-                      <p className="text-3xl md:text-4xl font-bold text-emerald-800 dark:text-emerald-200 leading-none">
+                      <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-emerald-800 dark:text-emerald-200 leading-none">
                         {item.number}
                       </p>
-                      <p className="text-zinc-700 dark:text-zinc-200 text-sm mt-2">{item.label}</p>
+                      <p className="text-zinc-700 dark:text-zinc-200 text-[11px] sm:text-xs md:text-sm leading-tight mt-2">
+                        {item.label}
+                      </p>
                     </div>
                   ))}
                 </div>

@@ -112,6 +112,29 @@ h4 {
   );
 }
 
+@media (max-width: 767px) {
+  :root {
+    --radius-shell: 26px;
+    --radius-card: 16px;
+    --radius-control: 13px;
+  }
+
+  .glass-card {
+    background: linear-gradient(180deg, rgba(248, 255, 251, 0.86), rgba(235, 249, 241, 0.64));
+    box-shadow: 0 22px 44px -28px rgba(0, 25, 15, 0.62);
+    backdrop-filter: blur(20px) saturate(1.02);
+  }
+
+  .section-frame::before {
+    display: none;
+  }
+
+  .site-backdrop {
+    filter: saturate(0.34) contrast(0.72) brightness(1.12) blur(7px);
+    transform: scale(1.08);
+  }
+}
+
 .aurora-layer {
   position: absolute;
   border-radius: 999px;
@@ -193,6 +216,18 @@ h4 {
     background: linear-gradient(115deg, #ffffff 3%, #d2ffe7 40%, #66dfaa 68%, #e8fff4 100%);
     -webkit-background-clip: text;
     background-clip: text;
+  }
+
+  @media (max-width: 767px) {
+    .site-backdrop {
+      filter: saturate(0.3) contrast(0.72) brightness(0.58) blur(7px);
+      transform: scale(1.08);
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(10, 30, 20, 0.88), rgba(7, 22, 16, 0.66));
+      box-shadow: 0 22px 44px -28px rgba(0, 0, 0, 0.85);
+    }
   }
 }
 
