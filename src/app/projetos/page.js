@@ -66,7 +66,7 @@ export default function ProjetosPage() {
           {PROJETOS.map((p) => (
             <article
               key={p.title}
-              className="group relative rounded-3xl overflow-hidden shadow-2xl min-h-[360px]"
+              className="group relative rounded-[var(--radius-card)] overflow-hidden shadow-2xl min-h-[360px]"
             >
               <div className="absolute inset-0">
                 <Image
@@ -93,7 +93,7 @@ export default function ProjetosPage() {
       </section>
 
       <section className="relative py-14 px-4">
-        <div className="max-w-4xl mx-auto rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10 text-center">
+        <div className="max-w-4xl mx-auto rounded-[var(--radius-shell)] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-3">
             Quer um projeto com a sua identidade?
           </h2>

@@ -12,7 +12,7 @@ export default function SobrePage() {
     <main className="pt-24 md:pt-28">
       <section className="relative py-14 px-4">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10">
+          <div className="rounded-[var(--radius-shell)] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10">
             <h1 className="text-3xl md:text-4xl font-bold text-green-700 mb-4">
               Sobre a Bio-A
             </h1>
@@ -39,7 +39,7 @@ export default function SobrePage() {
             </div>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl min-h-[360px]">
+          <div className="relative rounded-[var(--radius-shell)] overflow-hidden shadow-2xl min-h-[360px]">
             <Image
               src="/plants/about.jpg"
               alt="Ambiente com plantas e composição biofílica"
@@ -54,21 +54,21 @@ export default function SobrePage() {
 
       <section className="relative py-10 px-4">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-3xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-7">
+          <div className="rounded-[var(--radius-card)] bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-7">
             <h2 className="text-xl font-bold text-green-700 mb-2">Missão</h2>
             <p className="text-zinc-700 dark:text-zinc-200">
               Transformar ambientes em experiências vivas, promovendo bem-estar,
               produtividade e sofisticação.
             </p>
           </div>
-          <div className="rounded-3xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-7">
+          <div className="rounded-[var(--radius-card)] bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-7">
             <h2 className="text-xl font-bold text-green-700 mb-2">Visão</h2>
             <p className="text-zinc-700 dark:text-zinc-200">
               Ser referência em curadoria premium e projetos biofílicos para
               residências e ambientes corporativos de alto padrão.
             </p>
           </div>
-          <div className="rounded-3xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-7">
+          <div className="rounded-[var(--radius-card)] bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md shadow-xl p-7">
             <h2 className="text-xl font-bold text-green-700 mb-2">Valores</h2>
             <p className="text-zinc-700 dark:text-zinc-200">
               Sustentabilidade, excelência, personalização e respeito à natureza
@@ -79,7 +79,7 @@ export default function SobrePage() {
       </section>
 
       <section className="relative py-14 px-4">
-        <div className="max-w-5xl mx-auto rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10">
+        <div className="max-w-5xl mx-auto rounded-[var(--radius-shell)] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10">
           <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-4">
             O que entregamos na prática
           </h2>

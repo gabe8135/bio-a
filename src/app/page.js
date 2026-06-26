@@ -1,89 +1,104 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const PRODUCTS = [
   {
-    name: "Orquídea Phalaenopsis Premium",
-    desc: "A clássica recepção de autoridade. Elegância perene para salas de reunião.",
+    name: "Orquidea Signature",
+    desc: "Composicao de entrada para recepcoes executivas com forte presenca visual.",
     img: "/plants/1.jpg",
     price: "R$ 249,00",
   },
   {
-    name: "Ficus Lyrata Extra-G G",
-    desc: "Uma escultura viva. Ideal para preencher espaços com imponência e modernidade.",
+    name: "Ficus Escultura",
+    desc: "Volume vertical para criar eixo de elegancia em salas amplas e halls.",
     img: "/plants/2.jpg",
     price: "R$ 399,00",
   },
   {
-    name: "Vaso de Polietileno com Acabamento em Quartzo",
-    desc: "Durabilidade blindada e estética mineral. O suporte à altura do seu patrimônio.",
+    name: "Vaso Mineral Quartz",
+    desc: "Acabamento texturizado com linguagem contemporanea para interiores premium.",
     img: "/plants/3.jpg",
     price: "R$ 189,00",
   },
   {
-    name: "Zamioculca (Resiliência Verde)",
-    desc: "Perfeita para ambientes internos com pouca luz, mantendo o brilho e o vigor sem esforço.",
+    name: "Zamioculca Vital",
+    desc: "Baixa manutencao com impacto visual alto para operacoes de ritmo intenso.",
     img: "/plants/4.jpg",
     price: "R$ 129,00",
   },
   {
-    name: "Arranjo de Boas-Vindas 'Classic Green'",
-    desc: "Mix de folhagens nobres em vaso cerâmico artesanal para mesas de centro e aparadores.",
+    name: "Arranjo Lobby Prime",
+    desc: "Folhagens nobres para areas de espera que pedem acolhimento e autoridade.",
     img: "/plants/5.jpg",
     price: "R$ 159,00",
   },
+  {
+    name: "Kit Conselho",
+    desc: "Curadoria para salas de reuniao com composicao equilibrada de texturas.",
+    img: "/plants/about-desktop.jpg",
+    price: "R$ 289,00",
+  },
+];
+
+const BENEFITS = [
+  {
+    title: "Leitura de marca",
+    text: "Elementos biofilicos elevam a percepcao de valor e reforcam uma narrativa de inovacao.",
+  },
+  {
+    title: "Performance humana",
+    text: "Ambientes verdes melhoram foco, conforto termico subjetivo e sensacao de equilibrio.",
+  },
+  {
+    title: "Memoria espacial",
+    text: "A composicao vegetal cria pontos de referencia marcantes e experiencia memoravel.",
+  },
+];
+
+const PROCESS = [
+  "Imersao no espaco e leitura arquitetonica",
+  "Direcao criativa com moodboard biofilico",
+  "Curadoria, montagem cenografica e calibracao final",
+  "Acompanhamento e evolucao sazonal do projeto",
+];
+
+const STATS = [
+  { number: "+180", label: "ambientes transformados" },
+  { number: "97%", label: "clientes recorrentes" },
+  { number: "24h", label: "primeira proposta" },
 ];
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-      setTimeout(() => setReduced(mq.matches), 0); // Evita setState síncrono
-      const handler = () => setReduced(mq.matches);
-      mq.addEventListener("change", handler);
-      return () => mq.removeEventListener("change", handler);
-    }
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const handler = () => setReduced(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
   return reduced;
 }
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
-  // Estados para animação das folhas
-  const [leafState, setLeafState] = useState("static"); // static | exit | hidden | enter
+  const [scrollY, setScrollY] = useState(0);
+  const [heroVisible, setHeroVisible] = useState(false);
+  const [contactVisible, setContactVisible] = useState(false);
+  const [revealed, setRevealed] = useState(Array(PRODUCTS.length).fill(false));
+  const [leafState, setLeafState] = useState("static");
+
+  const heroRef = useRef(null);
+  const contactRef = useRef(null);
+  const beneficiosRef = useRef(null);
+  const showcaseRefs = useRef([]);
   const leafTimeoutRef = useRef(null);
   const leafLastShouldBeVisibleRef = useRef(null);
-  const beneficiosRef = useRef(null);
-  // Animação About com Intersection Observer
-  const [aboutTextVisible, setAboutTextVisible] = useState(false);
-  const [aboutImgVisible, setAboutImgVisible] = useState(false);
-  const aboutTextRef = useRef(null);
-  const aboutImgRef = useRef(null);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const observerText = new window.IntersectionObserver(
-      ([entry]) => setAboutTextVisible(entry.isIntersecting),
-      { threshold: 0.3 },
-    );
-    const observerImg = new window.IntersectionObserver(
-      ([entry]) => setAboutImgVisible(entry.isIntersecting),
-      { threshold: 0.3 },
-    );
-    const textEl = aboutTextRef.current;
-    const imgEl = aboutImgRef.current;
-    if (textEl) observerText.observe(textEl);
-    if (imgEl) observerImg.observe(imgEl);
-    return () => {
-      if (textEl) observerText.unobserve(textEl);
-      if (imgEl) observerImg.unobserve(imgEl);
-      observerText.disconnect();
-      observerImg.disconnect();
-    };
-  }, []);
   const prefersReducedMotion = usePrefersReducedMotion();
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const update = () => setIsMobile(window.innerWidth < 768);
@@ -92,7 +107,14 @@ export default function Home() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Controle de animação das folhas: visíveis até Benefícios do Verde aparecer
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onScroll = () => setScrollY(window.scrollY);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (leafTimeoutRef.current) {
@@ -100,17 +122,14 @@ export default function Home() {
       leafTimeoutRef.current = null;
     }
 
-    const handleScroll = () => {
+    const handleLeafBySection = () => {
       const beneficios = beneficiosRef.current;
-      const scrollY = window.scrollY;
+      const y = window.scrollY;
       const vh = window.innerHeight;
-      // Pega posição das seções
       const beneficiosTop = beneficios
-        ? beneficios.getBoundingClientRect().top + scrollY
-        : 0;
-
-      // Regra: visível na Hero e Sobre; ao aparecer Benefícios, as folhas saem e somem.
-      const pivot = scrollY + vh * 0.45;
+        ? beneficios.getBoundingClientRect().top + y
+        : Number.POSITIVE_INFINITY;
+      const pivot = y + vh * 0.45;
       const shouldBeVisible = pivot < beneficiosTop;
 
       if (prefersReducedMotion) {
@@ -127,7 +146,6 @@ export default function Home() {
 
       if (leafLastShouldBeVisibleRef.current === shouldBeVisible) return;
 
-      // Mudou de zona: anima para sair/entrar uma única vez
       if (leafTimeoutRef.current) {
         clearTimeout(leafTimeoutRef.current);
         leafTimeoutRef.current = null;
@@ -138,21 +156,22 @@ export default function Home() {
         leafTimeoutRef.current = setTimeout(() => {
           setLeafState("static");
           leafTimeoutRef.current = null;
-        }, 1200);
+        }, 1300);
       } else {
         setLeafState("exit");
         leafTimeoutRef.current = setTimeout(() => {
           setLeafState("hidden");
           leafTimeoutRef.current = null;
-        }, 1200);
+        }, 1300);
       }
 
       leafLastShouldBeVisibleRef.current = shouldBeVisible;
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+
+    window.addEventListener("scroll", handleLeafBySection, { passive: true });
+    handleLeafBySection();
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleLeafBySection);
       if (leafTimeoutRef.current) {
         clearTimeout(leafTimeoutRef.current);
         leafTimeoutRef.current = null;
@@ -160,98 +179,96 @@ export default function Home() {
     };
   }, [prefersReducedMotion]);
 
-  // Hero e Contact animados com Intersection Observer
-  const [heroVisible, setHeroVisible] = useState(false);
-  const heroRef = useRef(null);
   useEffect(() => {
-    if (prefersReducedMotion) {
-      setTimeout(() => setHeroVisible(true), 0);
-      return;
-    }
     if (typeof window === "undefined") return;
     const observer = new window.IntersectionObserver(
       ([entry]) => setHeroVisible(entry.isIntersecting),
-      { threshold: 0.3 },
+      { threshold: 0.35 },
     );
-    const heroEl = heroRef.current;
-    if (heroEl) observer.observe(heroEl);
+    const el = heroRef.current;
+    if (el) observer.observe(el);
     return () => {
-      if (heroEl) observer.unobserve(heroEl);
-      observer.disconnect();
-    };
-  }, [prefersReducedMotion]);
-
-  // Contact animation
-  const [contactVisible, setContactVisible] = useState(false);
-  const contactRef = useRef(null);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const observer = new window.IntersectionObserver(
-      ([entry]) => setContactVisible(entry.isIntersecting),
-      { threshold: 0.2 },
-    );
-    const contactEl = contactRef.current;
-    if (contactEl) observer.observe(contactEl);
-    return () => {
-      if (contactEl) observer.unobserve(contactEl);
+      if (el) observer.unobserve(el);
       observer.disconnect();
     };
   }, []);
 
-  // Showcase scroll reveal com Intersection Observer
-  const [revealed, setRevealed] = useState(Array(PRODUCTS.length).fill(false));
-  const showcaseRefs = useRef([]);
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const observer = new window.IntersectionObserver(
+      ([entry]) => setContactVisible(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+    const el = contactRef.current;
+    if (el) observer.observe(el);
+    return () => {
+      if (el) observer.unobserve(el);
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     if (prefersReducedMotion) {
-      setTimeout(() => setRevealed(Array(PRODUCTS.length).fill(true)), 0);
+      setRevealed(Array(PRODUCTS.length).fill(true));
       return;
     }
-    if (typeof window === "undefined") return;
     const observers = [];
     const elements = showcaseRefs.current.slice();
-    elements.forEach((ref, i) => {
-      if (!ref) return;
+    elements.forEach((el, i) => {
+      if (!el) return;
       const obs = new window.IntersectionObserver(
         ([entry]) => {
-          setRevealed((r) => {
-            const copy = [...r];
-            copy[i] = entry.isIntersecting;
-            return copy;
+          setRevealed((current) => {
+            const next = [...current];
+            next[i] = entry.isIntersecting;
+            return next;
           });
         },
-        { threshold: 0.3 },
+        { threshold: 0.28 },
       );
-      obs.observe(ref);
-      observers.push(obs);
+      obs.observe(el);
+      observers.push({ obs, el });
     });
+
     return () => {
-      observers.forEach((obs, i) => {
-        const el = elements[i];
-        if (el) obs.unobserve(el);
+      observers.forEach(({ obs, el }) => {
+        obs.unobserve(el);
         obs.disconnect();
       });
     };
   }, [prefersReducedMotion]);
 
+  const heroParallax = useMemo(() => {
+    const value = Math.min(scrollY * 0.32, 120);
+    return prefersReducedMotion ? 0 : value;
+  }, [scrollY, prefersReducedMotion]);
+
+  const leafLeftTransform =
+    leafState === "exit" || leafState === "hidden"
+      ? "translate(-220vw, -50%) rotate(-34deg)"
+      : `translate(calc(-102% - 2rem), calc(-50% + ${heroParallax * 0.12}px)) rotate(-10deg)`;
+
+  const leafRightTransform =
+    leafState === "exit" || leafState === "hidden"
+      ? "translate(220vw, -50%) rotate(34deg) scaleX(-1)"
+      : `translate(calc(102% + 2rem), calc(-50% + ${heroParallax * 0.12}px)) rotate(10deg) scaleX(-1)`;
+
   return (
     <>
-      {/* Folhas decorativas (somente Home) com animação controlada por seção */}
       <Image
         src="/image/folhas-01.png"
         alt=""
         aria-hidden="true"
         width={1400}
         height={1400}
-        className={`pointer-events-none select-none fixed left-1/2 z-0 ${isMobile ? "w-[180vw] max-w-none" : "w-[110vw] sm:w-[86vw] md:w-[680px] lg:w-[920px]"}`}
+        className={`pointer-events-none select-none fixed left-1/2 z-3 ${isMobile ? "w-[185vw] max-w-none" : "w-[110vw] sm:w-[90vw] md:w-180 lg:w-245"}`}
         style={{
-          top: "45vh",
-          transform:
-            leafState === "exit" || leafState === "hidden"
-              ? "translate(-200vw, -50%) rotate(-30deg)"
-              : "translate(calc(-100% - 1.5rem), -50%) rotate(-10deg)",
-          opacity: leafState === "hidden" || leafState === "exit" ? 0 : 0.95,
-          filter: "blur(2px) drop-shadow(0 22px 38px rgba(0,0,0,0.34))",
-          transition: "all 1.2s cubic-bezier(.4,0,.2,1)",
+          top: "44vh",
+          transform: leafLeftTransform,
+          opacity: leafState === "hidden" || leafState === "exit" ? 0 : 0.9,
+          filter: "blur(2.7px) drop-shadow(0 26px 36px rgba(0,0,0,0.35))",
+          transition: "all 1.3s cubic-bezier(.22,1,.36,1)",
         }}
       />
       <Image
@@ -260,392 +277,260 @@ export default function Home() {
         aria-hidden="true"
         width={1400}
         height={1400}
-        className={`pointer-events-none select-none fixed right-1/2 z-0 ${isMobile ? "w-[180vw] max-w-none" : "w-[110vw] sm:w-[86vw] md:w-[680px] lg:w-[920px]"}`}
+        className={`pointer-events-none select-none fixed right-1/2 z-3 ${isMobile ? "w-[185vw] max-w-none" : "w-[110vw] sm:w-[90vw] md:w-180 lg:w-245"}`}
         style={{
-          top: "45vh",
-          transform:
-            leafState === "exit" || leafState === "hidden"
-              ? "translate(200vw, -50%) rotate(30deg) scaleX(-1)"
-              : "translate(calc(100% + 1.5rem), -50%) rotate(10deg) scaleX(-1)",
-          opacity: leafState === "hidden" || leafState === "exit" ? 0 : 0.95,
-          filter: "blur(2px) drop-shadow(0 22px 38px rgba(0,0,0,0.34))",
-          transition: "all 1.2s cubic-bezier(.4,0,.2,1)",
+          top: "44vh",
+          transform: leafRightTransform,
+          opacity: leafState === "hidden" || leafState === "exit" ? 0 : 0.9,
+          filter: "blur(2.7px) drop-shadow(0 26px 36px rgba(0,0,0,0.35))",
+          transition: "all 1.3s cubic-bezier(.22,1,.36,1)",
         }}
       />
 
-      {/* Conteúdo principal (Hero, About, Showcase, Contact) */}
-      <main className="pt-0">
-        {/* Hero Section */}
+      <main className="relative z-10 pt-16 md:pt-20 overflow-hidden">
         <section
           id="inicio"
-          className="relative flex items-center justify-center min-h-[90vh] md:pt-16 overflow-hidden"
+          ref={heroRef}
+          className="relative min-h-[calc(100vh-4.5rem)] md:min-h-[calc(100vh-5rem)] flex items-start md:items-center justify-center px-4 sm:px-6 lg:px-8 pt-10 md:pt-12 pb-16 md:pb-20"
         >
           <div
-            ref={heroRef}
-            className="relative z-10 flex flex-col items-center text-center max-w-2xl px-6"
-          >
-            <h1
-              className={`relative z-10 text-4xl md:text-5xl font-bold leading-tight text-white drop-shadow-lg mb-4 transition-all duration-[1600ms] ease-out ${heroVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-8"}`}
-            >
-              A sofisticação da natureza integrada ao seu ambiente de alto
-              padrão.
-            </h1>
-            <p
-              className={`relative z-10 text-lg md:text-xl text-zinc-100/90 mb-8 transition-all duration-[1200ms] delay-200 ease-out ${heroVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-8"}`}
-            >
-              Mais do que plantas, entregamos elementos de design que comunicam
-              autoridade, bem-estar e sofisticação para residências e
-              escritórios jurídicos.
-            </p>
-            <a
-              href="#curadoria"
-              className={`relative z-10 px-7 py-3 rounded-full bg-green-700 text-white font-semibold shadow-lg hover:bg-green-800 transition-all text-lg duration-[1000ms] ${heroVisible ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
-            >
-              Conheça Nossa Curadoria
-            </a>
-          </div>
-        </section>
+            className="aurora-layer h-[32vh] w-[42vw] left-[8vw] top-[24vh] bg-emerald-300/55"
+            style={{ transform: `translateY(${heroParallax * 0.4}px)` }}
+            aria-hidden="true"
+          />
+          <div
+            className="aurora-layer h-[30vh] w-[35vw] right-[4vw] top-[18vh] bg-cyan-300/45"
+            style={{ transform: `translateY(${heroParallax * 0.55}px)` }}
+            aria-hidden="true"
+          />
 
-        {/* About Section - enriquecida */}
-        <section
-          id="sobre"
-          className="relative py-20 px-4 scroll-mt-24 md:scroll-mt-28"
-        >
-          <div className="relative z-10 max-w-5xl mx-auto flex justify-center items-center min-h-[420px] px-2 md:px-8">
-            <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-              <div className="w-full md:w-[900px] h-full bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-3xl shadow-2xl" />
-            </div>
-            <div className="relative w-full flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 h-full min-h-[320px] px-2 md:px-8">
-              <div className="relative w-full flex justify-center md:justify-start md:w-auto">
-                <div
-                  className={`transition-all duration-700 flex-shrink-0 z-20 ${aboutImgVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-8"} md:absolute md:-left-40 md:top-1/2 md:-translate-y-1/2 md:translate-x-0`}
-                  style={{
-                    width: "320px",
-                    maxWidth: "90vw",
-                    pointerEvents: "auto",
-                  }}
-                  ref={aboutImgRef}
-                >
-                  <Image
-                    src="/plants/about.jpg"
-                    alt="Plantas em ambiente sofisticado"
-                    width={420}
-                    height={420}
-                    className="rounded-3xl object-cover w-full h-auto aspect-square md:w-[420px] md:h-[420px] shadow-2xl"
-                    style={{
-                      objectPosition: "center",
-                      width: "100%",
-                      maxWidth: "420px",
-                      aspectRatio: "1/1",
-                    }}
-                  />
+          <div className="relative max-w-6xl w-full mx-auto">
+            <div className="glass-card rounded-[var(--radius-shell)] p-6 pt-9 sm:p-8 sm:pt-9 md:p-11 lg:p-14 section-frame overflow-hidden">
+              <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 md:gap-12 lg:gap-14 items-start lg:items-center">
+                <div className="space-y-6 sm:space-y-7 pt-1 md:pt-0">
+                  <p
+                    className={`inline-flex max-w-full uppercase tracking-[0.11em] sm:tracking-[0.18em] md:tracking-[0.22em] text-[10px] sm:text-xs md:text-sm font-semibold text-emerald-900/80 dark:text-emerald-200/90 transition-all duration-700 leading-tight ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+                  >
+                    Estudio Bio-A
+                  </p>
+                  <h1
+                    className={`headline-gradient text-4xl sm:text-5xl lg:text-7xl leading-[1.02] sm:leading-[0.97] md:leading-[0.92] transition-all duration-1200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+                  >
+                    Parallax botanico com assinatura de luxo.
+                  </h1>
+                  <p
+                    className={`text-zinc-700 dark:text-zinc-200 text-base md:text-lg max-w-xl leading-relaxed transition-all duration-1200 delay-150 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+                  >
+                    Transformamos arquitetura em experiencia sensorial com camadas de movimento, luz
+                    e natureza. Um site que nao apenas mostra um portfolio, mas prova dominio
+                    tecnico e estatico de animacao parallax.
+                  </p>
+                  <div
+                    className={`flex flex-wrap gap-3.5 md:gap-4 pt-1 transition-all duration-1200 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+                  >
+                    <a
+                      href="#curadoria"
+                      className="w-full sm:w-auto text-center px-7 py-3 rounded-full bg-linear-to-r from-emerald-700 to-teal-600 text-white font-semibold shadow-[0_18px_38px_-18px_rgba(12,111,76,.8)] hover:scale-[1.02] transition"
+                    >
+                      Ver Experiencias
+                    </a>
+                    <a
+                      href="#contato"
+                      className="w-full sm:w-auto text-center px-7 py-3 rounded-full border border-emerald-900/25 dark:border-emerald-100/30 text-emerald-900 dark:text-emerald-100 font-semibold hover:bg-white/40 dark:hover:bg-white/10 transition"
+                    >
+                      Agendar Consultoria
+                    </a>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-1 gap-4 md:gap-4.5">
+                  {STATS.map((item, i) => (
+                    <div
+                      key={item.label}
+                      className={`glass-card rounded-[var(--radius-card)] p-4 md:p-5 transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+                      style={{ transitionDelay: `${250 + i * 120}ms` }}
+                    >
+                      <p className="text-3xl md:text-4xl font-bold text-emerald-800 dark:text-emerald-200 leading-none">
+                        {item.number}
+                      </p>
+                      <p className="text-zinc-700 dark:text-zinc-200 text-sm mt-2">{item.label}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div
-                className="hidden md:block"
-                style={{ width: "180px", flexShrink: 0 }}
-              />
-              <div
-                className={`transition-all duration-700 flex flex-col justify-center items-center md:items-start w-full md:w-1/2 max-w-[420px] px-2 md:px-0 z-10 ${aboutTextVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                ref={aboutTextRef}
-                style={{
-                  minHeight: "220px",
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
-                }}
-              >
-                <h2 className="text-2xl md:text-4xl font-bold mb-4 text-green-700 text-center md:text-left w-full">
-                  Excelência em cada detalhe botânico.
-                </h2>
-                <p className="text-base md:text-lg text-zinc-700 dark:text-zinc-200 text-center md:text-left mb-3 w-full">
-                  Entendemos que o seu espaço é o reflexo do seu sucesso. Por
-                  isso, não apenas vendemos plantas; oferecemos uma consultoria
-                  em design biofílico. Nossa missão é harmonizar o meio ambiente
-                  com a arquitetura moderna, garantindo que cada vaso e cada
-                  espécie contribua para uma atmosfera de sobriedade e vigor.
-                  <br />
-                  <br />
-                  <b>Missão:</b> Transformar ambientes em experiências vivas,
-                  promovendo bem-estar, produtividade e sofisticação.
-                  <br />
-                  <b>Valores:</b> Sustentabilidade, excelência, personalização e
-                  respeito à natureza.
-                  <br />
-                  <b>Diferenciais:</b> Curadoria exclusiva, atendimento
-                  consultivo, entrega premium e pós-venda atencioso.
-                </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="sobre" className="relative py-24 md:py-28 px-4 sm:px-6 lg:px-8 scroll-mt-32">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
+            <div className="relative">
+              <div className="absolute -inset-3 rounded-[var(--radius-shell)] bg-linear-to-br from-emerald-400/40 to-cyan-300/25 blur-2xl" />
+              <div className="relative overflow-hidden rounded-[var(--radius-shell)] border border-white/35 dark:border-white/10 shadow-2xl">
+                <Image
+                  src="/plants/about.jpg"
+                  alt="Ambiente biofilico premium"
+                  width={680}
+                  height={680}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="glass-card rounded-[var(--radius-shell)] p-8 md:p-10 lg:p-11 section-frame">
+              <h2 className="text-3xl md:text-5xl text-emerald-900 dark:text-emerald-100 mb-4">
+                Excelencia em cada detalhe botanico.
+              </h2>
+              <p className="text-zinc-700 dark:text-zinc-200 leading-relaxed mb-7">
+                A Bio-A combina design biofilico, curadoria de especies e linguagem arquitetonica
+                para criar ambientes inesqueciveis. O resultado e um espaco com presenca, serenidade
+                e performance.
+              </p>
+              <div className="grid md:grid-cols-2 gap-4.5 pt-2">
+                <div className="rounded-[var(--radius-card)] bg-white/45 dark:bg-zinc-900/40 border border-white/45 dark:border-white/10 p-4.5 md:p-5">
+                  <h3 className="text-emerald-800 dark:text-emerald-200 font-semibold mb-1">
+                    Missao
+                  </h3>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                    Elevar ambientes com natureza estrategica e elegancia.
+                  </p>
+                </div>
+                <div className="rounded-[var(--radius-card)] bg-white/45 dark:bg-zinc-900/40 border border-white/45 dark:border-white/10 p-4.5 md:p-5">
+                  <h3 className="text-emerald-800 dark:text-emerald-200 font-semibold mb-1">
+                    Diferencial
+                  </h3>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                    Curadoria autoral e implantacao premium com acompanhamento.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Benefícios do Verde */}
-        <section className="relative py-16 px-4" ref={beneficiosRef}>
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-6">
+        <section ref={beneficiosRef} className="relative py-20 md:py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-5xl text-center text-emerald-900 dark:text-emerald-100 mb-10">
               Por que investir em ambientes verdes?
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white/70 dark:bg-zinc-900/60 rounded-2xl shadow-lg p-6">
-                <h3 className="font-bold text-lg mb-2 text-green-800">
-                  Bem-estar & Saúde
-                </h3>
-                <p>
-                  Plantas purificam o ar, reduzem o estresse e aumentam a
-                  sensação de conforto e relaxamento.
-                </p>
-              </div>
-              <div className="bg-white/70 dark:bg-zinc-900/60 rounded-2xl shadow-lg p-6">
-                <h3 className="font-bold text-lg mb-2 text-green-800">
-                  Produtividade & Foco
-                </h3>
-                <p>
-                  Ambientes biofílicos estimulam a criatividade, concentração e
-                  satisfação no trabalho.
-                </p>
-              </div>
-              <div className="bg-white/70 dark:bg-zinc-900/60 rounded-2xl shadow-lg p-6">
-                <h3 className="font-bold text-lg mb-2 text-green-800">
-                  Valorização do Espaço
-                </h3>
-                <p>
-                  O verde agrega sofisticação, valoriza imóveis e transmite uma
-                  imagem de sucesso e cuidado.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Como Funciona a Curadoria */}
-        <section className="relative py-16 px-4 bg-green-50 dark:bg-zinc-800/40">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-8 text-center">
-              Como funciona nossa curadoria?
-            </h2>
-            <ol className="space-y-6 text-left md:text-center">
-              <li>
-                <b>1. Diagnóstico:</b> Entendemos o perfil do ambiente,
-                necessidades e preferências do cliente.
-              </li>
-              <li>
-                <b>2. Seleção:</b> Escolhemos espécies e vasos ideais para cada
-                espaço, priorizando beleza e praticidade.
-              </li>
-              <li>
-                <b>3. Entrega & Montagem:</b> Realizamos a entrega premium e
-                montagem no local, com todo cuidado.
-              </li>
-              <li>
-                <b>4. Pós-venda:</b> Oferecemos suporte e dicas para manutenção
-                e longevidade das plantas.
-              </li>
-            </ol>
-          </div>
-        </section>
-
-        {/* Depoimentos */}
-        <section className="relative py-16 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-8">
-              O que dizem nossos clientes
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white/80 dark:bg-zinc-900/60 rounded-2xl shadow-lg p-6 flex flex-col items-center">
-                <span className="text-green-700 text-3xl mb-2">“</span>
-                <p className="italic mb-4">
-                  O atendimento foi impecável e as plantas transformaram nosso
-                  escritório. Recomendo de olhos fechados!
-                </p>
-                <span className="font-bold text-green-800">
-                  — Ana Paula, Advogada
-                </span>
-              </div>
-              <div className="bg-white/80 dark:bg-zinc-900/60 rounded-2xl shadow-lg p-6 flex flex-col items-center">
-                <span className="text-green-700 text-3xl mb-2">“</span>
-                <p className="italic mb-4">
-                  A curadoria personalizada fez toda diferença. O ambiente ficou
-                  mais elegante e acolhedor.
-                </p>
-                <span className="font-bold text-green-800">
-                  — Ricardo Lima, Empresário
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="relative py-16 px-4 bg-white/60 dark:bg-zinc-900/40">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-8 text-center">
-              Perguntas Frequentes
-            </h2>
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold text-green-800">
-                  Vocês atendem residências e empresas?
-                </h3>
-                <p>
-                  Sim! Nossa curadoria é personalizada tanto para ambientes
-                  corporativos quanto residenciais.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-green-800">
-                  As plantas já vão montadas?
-                </h3>
-                <p>
-                  Sim, entregamos tudo pronto para uso, com montagem e
-                  instruções de cuidados.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-green-800">
-                  Posso escolher as espécies?
-                </h3>
-                <p>
-                  Você pode indicar preferências e restrições, e nossa equipe
-                  sugere as melhores opções para seu espaço.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-green-800">
-                  E se eu não souber cuidar?
-                </h3>
-                <p>
-                  Oferecemos suporte pós-venda e dicas para garantir a saúde e
-                  beleza das plantas.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA final */}
-        <section className="relative py-16 px-4 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-4">
-              Pronto para transformar seu ambiente?
-            </h2>
-            <p className="mb-8 text-zinc-700 dark:text-zinc-200">
-              Solicite um orçamento personalizado e descubra como a natureza
-              pode elevar o padrão do seu espaço.
-            </p>
-            <a
-              href="#contato"
-              className="inline-block px-8 py-4 rounded-full bg-green-700 text-white font-semibold shadow-lg hover:bg-green-800 transition-colors text-lg"
-            >
-              Solicitar Orçamento
-            </a>
-          </div>
-        </section>
-
-        {/* Showcase Section */}
-        <section id="curadoria" className="relative py-20 px-4">
-          <div className="relative z-10 max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-green-700">
-              Melhoria do Ambiente
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-              {PRODUCTS.map((prod, i) => (
-                <div
-                  key={prod.name}
-                  ref={(el) => (showcaseRefs.current[i] = el)}
-                  className={`group relative rounded-3xl overflow-hidden shadow-xl flex flex-col items-center justify-end min-h-[370px] cursor-pointer transition-all duration-[1200ms] ease-out ${revealed[i] ? "opacity-100 scale-105" : "opacity-0 scale-95"}`}
-                  style={{ transitionDelay: `${i * 220}ms` }}
-                  tabIndex={0}
+            <div className="grid md:grid-cols-3 gap-5 md:gap-6">
+              {BENEFITS.map((item) => (
+                <article
+                  key={item.title}
+                  className="glass-card rounded-[var(--radius-card)] p-6 md:p-7 hover:-translate-y-1 transition-transform"
                 >
-                  <div className="absolute inset-0 z-0">
-                    <Image
-                      src={prod.img}
-                      alt={prod.name}
-                      fill
-                      className="object-cover w-full h-full scale-110 group-hover:scale-100 group-active:scale-95 transition-transform duration-500"
-                      style={{ filter: "brightness(0.85) blur(0px)" }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-zinc-900/30 to-transparent group-hover:from-green-800/80 group-hover:via-green-700/30 group-hover:to-transparent transition-all duration-500" />
-                  </div>
-                  <div className="relative z-10 w-full flex-1 flex flex-col items-center justify-end p-6">
-                    <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg group-hover:text-green-200 transition-colors duration-300 text-center">
-                      {prod.name}
-                    </h3>
-                    <p className="text-zinc-100/90 text-base mb-4 text-center group-hover:text-green-100 transition-colors duration-300">
-                      {prod.desc}
-                    </p>
-                    <div className="mt-auto text-lg font-bold text-green-300 bg-zinc-900/80 rounded-full px-6 py-2 shadow-lg group-hover:bg-green-800/80 group-hover:text-green-100 transition-all duration-300">
-                      {prod.price}
-                    </div>
-                  </div>
-                  <div className="pointer-events-none absolute inset-0 z-20 opacity-0 group-active:opacity-100 transition-opacity duration-300 bg-green-700/60 backdrop-blur-sm flex items-center justify-center">
-                    <span className="text-white text-lg font-bold animate-pulse">
-                      Selecionado!
-                    </span>
-                  </div>
+                  <h3 className="text-xl text-emerald-800 dark:text-emerald-200 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-zinc-700 dark:text-zinc-200">{item.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative py-20 md:py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto glass-card rounded-[var(--radius-shell)] p-8 md:p-10">
+            <h2 className="text-3xl md:text-4xl text-center text-emerald-900 dark:text-emerald-100 mb-8">
+              Nossa metodologia cenografica
+            </h2>
+            <div className="grid md:grid-cols-4 gap-4 md:gap-5">
+              {PROCESS.map((step, i) => (
+                <div
+                  key={step}
+                  className="rounded-[var(--radius-card)] border border-white/35 dark:border-white/10 bg-white/35 dark:bg-zinc-900/30 p-5"
+                >
+                  <p className="text-emerald-800 dark:text-emerald-200 font-bold mb-2">0{i + 1}</p>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-200 leading-relaxed">{step}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Contact Section */}
-        <section id="contato" className="relative py-20 px-4">
+        <section id="curadoria" className="relative py-24 md:py-28 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-5xl text-center text-emerald-900 dark:text-emerald-100 mb-4">
+              Showcase de composicoes
+            </h2>
+            <p className="text-center text-zinc-700 dark:text-zinc-200 max-w-2xl mx-auto mb-12">
+              Cartoes com profundidade, brilho e resposta de movimento para destacar cada especie
+              como uma peca de design.
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 md:gap-8">
+              {PRODUCTS.map((prod, i) => (
+                <article
+                  key={prod.name}
+                  ref={(el) => (showcaseRefs.current[i] = el)}
+                  className={`group relative overflow-hidden rounded-[var(--radius-card)] min-h-80 md:min-h-96 border border-white/35 dark:border-white/10 shadow-[0_28px_45px_-30px_rgba(0,0,0,.75)] transition-all duration-1200 ${revealed[i] ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-[0.97]"}`}
+                  style={{ transitionDelay: `${i * 120}ms` }}
+                >
+                  <Image
+                    src={prod.img}
+                    alt={prod.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-zinc-950/90 via-zinc-900/35 to-transparent" />
+                  <div className="absolute -inset-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[radial-gradient(circle_at_top_right,rgba(147,245,189,.34),transparent_58%)]" />
+                  <div className="relative z-10 h-full p-6 flex flex-col justify-end">
+                    <p className="text-emerald-300 text-sm font-semibold tracking-wide mb-2">
+                      BIO-A SIGNATURE
+                    </p>
+                    <h3 className="text-white text-2xl mb-2 wrap-break-word">{prod.name}</h3>
+                    <p className="text-zinc-100/90 text-sm leading-relaxed mb-4">{prod.desc}</p>
+                    <div className="inline-flex w-fit px-4 py-2 rounded-full bg-white/15 border border-white/25 text-emerald-200 font-semibold">
+                      {prod.price}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contato" className="relative py-24 md:py-28 px-4 sm:px-6 lg:px-8">
           <div
             ref={contactRef}
-            className={`relative z-10 max-w-xl mx-auto rounded-3xl shadow-2xl p-4 sm:p-8 md:p-12 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md flex flex-col items-center transition-all duration-[1200ms] ease-out ${contactVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-8"}`}
+            className={`max-w-4xl mx-auto glass-card rounded-[var(--radius-shell)] p-6 md:p-10 transition-all duration-1200 ${contactVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-2 text-center">
-              Consultoria Personalizada
-            </h2>
-            <p className="mb-8 text-zinc-700 dark:text-zinc-200 text-center max-w-lg pb-2 sm:pb-0">
-              Deixe seus dados para que um de nossos especialistas entre em
-              contato e planeje a renovação botânica do seu espaço.
-            </p>
-            <form className="w-full flex flex-col gap-3 sm:gap-5 items-center">
-              {/* Nome */}
-              <input
-                type="text"
-                placeholder="Nome"
-                className={`rounded-xl border border-green-200 px-5 py-3 bg-white/80 backdrop-blur placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all shadow w-full duration-700 ${contactVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                style={{ transitionDelay: "100ms" }}
-                required
-              />
-              {/* Email */}
-              <input
-                type="email"
-                placeholder="E-mail"
-                className={`rounded-xl border border-green-200 px-5 py-3 bg-white/80 backdrop-blur placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all shadow w-full duration-700 ${contactVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                style={{ transitionDelay: "250ms" }}
-                required
-              />
-              {/* Telefone */}
-              <input
-                type="tel"
-                placeholder="Telefone"
-                className={`rounded-xl border border-green-200 px-5 py-3 bg-white/80 backdrop-blur placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all shadow w-full duration-700 ${contactVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                style={{ transitionDelay: "400ms" }}
-                required
-              />
-              {/* Área de Interesse */}
-              <select
-                className={`rounded-xl border border-green-200 px-5 py-3 bg-white/80 backdrop-blur text-zinc-900 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all shadow w-full duration-700 ${contactVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                style={{ transitionDelay: "550ms" }}
-                required
-              >
-                <option value="">Área de Interesse</option>
-                <option value="residencial">Residencial</option>
-                <option value="corporativo">Corporativo</option>
-              </select>
-              <button
-                type="submit"
-                className="mt-2 px-6 py-3 rounded-full bg-green-700/90 text-white font-semibold shadow-lg hover:bg-green-800 transition-colors text-lg w-full sm:px-8"
-              >
-                <span className="block sm:hidden">Solicitar</span>
-                <span className="hidden sm:block">
-                  Solicitar Atendimento Exclusivo
-                </span>
-              </button>
-            </form>
+            <div className="grid md:grid-cols-[0.9fr_1.1fr] gap-6 md:gap-8 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl text-emerald-900 dark:text-emerald-100 mb-3">
+                  Vamos criar seu proximo ambiente icone.
+                </h2>
+                <p className="text-zinc-700 dark:text-zinc-200">
+                  Receba uma proposta com conceito visual, especies indicadas e estrutura de
+                  implantacao para seu espaco.
+                </p>
+              </div>
+              <form className="grid gap-3">
+                <input
+                  type="text"
+                  placeholder="Nome"
+                  className="rounded-[var(--radius-control)] border border-emerald-200/70 dark:border-emerald-100/20 bg-white/70 dark:bg-zinc-900/40 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="rounded-[var(--radius-control)] border border-emerald-200/70 dark:border-emerald-100/20 bg-white/70 dark:bg-zinc-900/40 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+                  required
+                />
+                <input
+                  type="tel"
+                  placeholder="Telefone"
+                  className="rounded-[var(--radius-control)] border border-emerald-200/70 dark:border-emerald-100/20 bg-white/70 dark:bg-zinc-900/40 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="mt-2 px-6 py-3 rounded-full bg-linear-to-r from-emerald-700 to-teal-600 text-white font-semibold shadow-[0_16px_34px_-16px_rgba(14,126,86,.8)] hover:scale-[1.01] transition"
+                >
+                  Solicitar proposta premium
+                </button>
+              </form>
+            </div>
           </div>
         </section>
       </main>

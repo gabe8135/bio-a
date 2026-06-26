@@ -84,7 +84,7 @@ export default function SolucoesPage() {
           {SOLUCOES.map((s) => (
             <div
               key={s.title}
-              className="rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7"
+              className="rounded-[var(--radius-card)] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7"
             >
               <h2 className="text-xl md:text-2xl font-bold text-green-700 mb-2">
                 {s.title}
@@ -104,7 +104,7 @@ export default function SolucoesPage() {
       </section>
 
       <section className="relative py-14 px-4">
-        <div className="max-w-4xl mx-auto rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10 text-center">
+        <div className="max-w-4xl mx-auto rounded-[var(--radius-shell)] bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shadow-2xl p-7 md:p-10 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-3">
             Quer uma recomendação personalizada?
           </h2>
